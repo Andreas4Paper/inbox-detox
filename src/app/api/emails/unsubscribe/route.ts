@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getToken } from 'next-auth/jwt'
+import { getGmailAccessToken } from '@/lib/auth'
 import { sendUnsubscribeEmail } from '@/lib/gmail'
 import { parseMailtoTarget, parseUnsubscribeUrl, requestUnsubscribeUrl } from '@/lib/unsubscribe'
 
@@ -11,8 +11,7 @@ interface UnsubscribeBody {
 }
 
 export async function POST(request: NextRequest) {
-  const token = await getToken({ req: request })
-  const accessToken = token?.accessToken
+  const accessToken = await getGmailAccessToken(request)
 
   if (!accessToken) {
     return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 401 })

@@ -82,8 +82,9 @@ export default function DatenschutzPage() {
           <Section title="3. Anmeldung mit Google">
             <p>
               Für die Nutzung der App meldest du dich mit deinem Google-Konto an. Dabei erhalten
-              wir deinen Namen, deine E-Mail-Adresse und dein Profilbild sowie Zugriffsschlüssel
-              (Tokens) für die von dir freigegebenen Gmail-Berechtigungen. Das Profilbild ruft unser
+              wir deinen Namen, deine E-Mail-Adresse und dein Profilbild sowie einen zeitlich
+              begrenzten Zugriffsschlüssel (Token) für die von dir freigegebenen
+              Gmail-Berechtigungen. Das Profilbild ruft unser
               Server bei Google ab und liefert es an deinen Browser aus.
             </p>
             <p>
@@ -136,8 +137,8 @@ export default function DatenschutzPage() {
             <p>
               Die App setzt nur technisch notwendige Cookies für Anmeldung und Schutz vor
               Missbrauch. Das Sitzungs-Cookie enthält in verschlüsselter Form deine Profildaten
-              und die Google-Tokens und gilt bis zur Abmeldung, längstens 30 Tage nach der
-              letzten Nutzung. Rechtsgrundlage sind § 25 Abs. 2 Nr. 2 TDDDG und Art. 6 Abs. 1
+              und den Google-Zugriffsschlüssel und gilt bis zur Abmeldung, längstens etwa eine
+              Stunde. Danach meldest du dich neu an. Rechtsgrundlage sind § 25 Abs. 2 Nr. 2 TDDDG und Art. 6 Abs. 1
               lit. b DSGVO. Diese statische Website selbst setzt keine Cookies.
             </p>
           </Section>

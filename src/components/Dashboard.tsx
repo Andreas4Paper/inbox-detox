@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { signIn } from 'next-auth/react'
 import type { NewsletterSender, AnalysisResult, FilterType, SortType } from '@/types'
 import { HealthScore } from './HealthScore'
 import { NewsletterCard } from './NewsletterCard'
@@ -87,6 +88,10 @@ export default function Dashboard() {
 
     try {
       const response = await fetch(`/api/emails/analyze?maxEmails=${emailCount}`)
+      if (response.status === 401) {
+        signIn('google', { callbackUrl: '/dashboard' })
+        return
+      }
       if (!response.ok) throw new Error(`HTTP ${response.status}`)
       if (!response.body) throw new Error('No response body')
 
@@ -104,29 +109,30 @@ export default function Dashboard() {
         for (const part of parts) {
           const dataLine = part.split('\n').find((l) => l.startsWith('data: '))
           if (!dataLine) continue
+          let data
           try {
-            const data = JSON.parse(dataLine.slice(6))
-            if (data.type === 'status') {
-              setProgress((p) => ({ ...p, message: data.message }))
-            } else if (data.type === 'progress') {
-              setProgress((p) => ({
-                ...p,
-                processed: data.processed,
-                total: data.total,
-                message: `Analysiere E-Mails… ${data.processed}/${data.total}`,
-              }))
-            } else if (data.type === 'complete') {
-              if (!aborted) {
-                const r: AnalysisResult = data.result
-                setResult(r)
-                setNewsletters(r.newsletters)
-                setProgress({ processed: data.total, total: data.total, status: 'complete', message: '' })
-              }
-            } else if (data.type === 'error') {
-              throw new Error(data.message)
+            data = JSON.parse(dataLine.slice(6))
+          } catch {
+            continue // skip malformed SSE events
+          }
+          if (data.type === 'status') {
+            setProgress((p) => ({ ...p, message: data.message }))
+          } else if (data.type === 'progress') {
+            setProgress((p) => ({
+              ...p,
+              processed: data.processed,
+              total: data.total,
+              message: `Analysiere E-Mails… ${data.processed}/${data.total}`,
+            }))
+          } else if (data.type === 'complete') {
+            if (!aborted) {
+              const r: AnalysisResult = data.result
+              setResult(r)
+              setNewsletters(r.newsletters)
+              setProgress({ processed: data.total, total: data.total, status: 'complete', message: '' })
             }
-          } catch (parseErr) {
-            // skip malformed SSE events
+          } else if (data.type === 'error') {
+            throw new Error(data.message)
           }
         }
       }
@@ -174,6 +180,11 @@ export default function Dashboard() {
           isOneClick: newsletter.isOneClick,
         }),
       })
+
+      if (res.status === 401) {
+        signIn('google', { callbackUrl: '/dashboard' })
+        return
+      }
 
       const data = await res.json()
       const success = res.ok && data.success

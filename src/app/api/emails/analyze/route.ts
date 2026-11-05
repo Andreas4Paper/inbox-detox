@@ -1,12 +1,11 @@
 import { NextRequest } from 'next/server'
-import { getToken } from 'next-auth/jwt'
+import { getGmailAccessToken } from '@/lib/auth'
 import { analyzeEmails } from '@/lib/newsletter-detector'
 
 export const maxDuration = 300 // 5 minutes max
 
 export async function GET(request: NextRequest) {
-  const token = await getToken({ req: request })
-  const accessToken = token?.accessToken
+  const accessToken = await getGmailAccessToken(request)
 
   if (!accessToken) {
     return new Response('Unauthorized', { status: 401 })

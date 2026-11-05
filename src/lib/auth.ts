@@ -1,5 +1,22 @@
-import { NextAuthOptions } from 'next-auth'
+import type { NextAuthOptions } from 'next-auth'
+import type { JWT } from 'next-auth/jwt'
+import { getToken } from 'next-auth/jwt'
 import GoogleProvider from 'next-auth/providers/google'
+import type { NextRequest } from 'next/server'
+
+// Google access tokens last about an hour. We deliberately request no refresh token,
+// so Gmail access ends with the session and users sign in again afterwards.
+const SESSION_MAX_AGE_SECONDS = 60 * 60
+
+function hasValidAccessToken(token: JWT): boolean {
+  return !!token.accessToken && !!token.expiresAt && token.expiresAt * 1000 > Date.now()
+}
+
+/** Returns the signed-in user's Gmail access token. It never leaves the server. */
+export async function getGmailAccessToken(request: NextRequest): Promise<string | null> {
+  const token = await getToken({ req: request })
+  return token && hasValidAccessToken(token) ? token.accessToken! : null
+}
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -15,22 +32,35 @@ export const authOptions: NextAuthOptions = {
             'https://www.googleapis.com/auth/gmail.readonly',
             'https://www.googleapis.com/auth/gmail.send',
           ].join(' '),
-          access_type: 'offline',
-          prompt: 'consent',
         },
       },
     }),
   ],
+  session: {
+    strategy: 'jwt',
+    maxAge: SESSION_MAX_AGE_SECONDS,
+  },
   callbacks: {
     async jwt({ token, account }) {
       if (account) {
-        token.accessToken = account.access_token
-        token.refreshToken = account.refresh_token
+        return {
+          name: token.name,
+          email: token.email,
+          picture: token.picture,
+          sub: token.sub,
+          accessToken: account.access_token,
+          expiresAt: account.expires_at,
+        }
+      }
+      // Reading the session extends the cookie, so end it explicitly with the Google token.
+      // NextAuth clears the session cookie when this callback throws.
+      if (!hasValidAccessToken(token)) {
+        throw new Error('Gmail access expired')
       }
       return token
     },
-    // The Gmail tokens stay in the encrypted cookie and are only read on the server
-    // (via getToken), so they are deliberately not added to the client-visible session.
+    // The access token stays in the encrypted cookie and is deliberately not added
+    // to the client-visible session.
   },
   pages: {
     signIn: '/',
