@@ -16,6 +16,7 @@ export interface NewsletterSender {
   unsubscribeMethod: 'http' | 'mailto' | 'unknown'
   unsubscribeUrl?: string
   unsubscribeEmail?: string
+  isOneClick?: boolean
   sampleEmails: EmailPreview[]
   status: 'subscribed' | 'unsubscribed' | 'pending'
   riskLevel: 'low' | 'medium' | 'high'

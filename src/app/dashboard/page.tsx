@@ -1,6 +1,7 @@
 'use client'
 
 import { useSession, signIn } from 'next-auth/react'
+import Link from 'next/link'
 import { useEffect } from 'react'
 import { Navbar } from '@/components/Navbar'
 import Dashboard from '@/components/Dashboard'
@@ -33,6 +34,15 @@ export default function DashboardPage() {
       <main>
         <Dashboard />
       </main>
+      <footer className="flex items-center justify-center gap-4 py-6 text-slate-500 text-sm">
+        <Link href="/impressum" className="hover:text-slate-900 transition-colors">
+          Impressum
+        </Link>
+        <span className="text-slate-300">·</span>
+        <Link href="/datenschutz" className="hover:text-slate-900 transition-colors">
+          Datenschutz
+        </Link>
+      </footer>
     </div>
   )
 }

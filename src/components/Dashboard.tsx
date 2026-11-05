@@ -171,7 +171,7 @@ export default function Dashboard() {
           method: newsletter.unsubscribeMethod,
           url: newsletter.unsubscribeUrl,
           email: newsletter.unsubscribeEmail,
-          senderName: newsletter.name,
+          isOneClick: newsletter.isOneClick,
         }),
       })
 

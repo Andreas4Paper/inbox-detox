@@ -1,14 +1,14 @@
 import { NextRequest } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { getToken } from 'next-auth/jwt'
 import { analyzeEmails } from '@/lib/newsletter-detector'
 
 export const maxDuration = 300 // 5 minutes max
 
 export async function GET(request: NextRequest) {
-  const session = await getServerSession(authOptions)
+  const token = await getToken({ req: request })
+  const accessToken = token?.accessToken
 
-  if (!session?.accessToken) {
+  if (!accessToken) {
     return new Response('Unauthorized', { status: 401 })
   }
 
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
         send({ type: 'status', message: 'Verbinde mit Gmail…' })
 
         const result = await analyzeEmails(
-          session.accessToken!,
+          accessToken,
           maxEmails,
           (processed, total) => {
             send({ type: 'progress', processed, total })

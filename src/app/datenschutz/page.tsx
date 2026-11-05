@@ -83,8 +83,8 @@ export default function DatenschutzPage() {
             <p>
               Für die Nutzung der App meldest du dich mit deinem Google-Konto an. Dabei erhalten
               wir deinen Namen, deine E-Mail-Adresse und dein Profilbild sowie Zugriffsschlüssel
-              (Tokens) für die von dir freigegebenen Gmail-Berechtigungen. Das Profilbild wird
-              direkt von Servern von Google geladen, wodurch Google deine IP-Adresse erhält.
+              (Tokens) für die von dir freigegebenen Gmail-Berechtigungen. Das Profilbild ruft unser
+              Server bei Google ab und liefert es an deinen Browser aus.
             </p>
             <p>
               Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Bereitstellung der von dir

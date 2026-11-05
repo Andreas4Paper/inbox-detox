@@ -1,20 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { getToken } from 'next-auth/jwt'
 import { sendUnsubscribeEmail } from '@/lib/gmail'
+import { parseMailtoTarget, parseUnsubscribeUrl, requestUnsubscribeUrl } from '@/lib/unsubscribe'
 
 interface UnsubscribeBody {
   method: 'http' | 'mailto' | 'unknown'
   url?: string
   email?: string
   isOneClick?: boolean
-  senderName?: string
 }
 
 export async function POST(request: NextRequest) {
-  const session = await getServerSession(authOptions)
+  const token = await getToken({ req: request })
+  const accessToken = token?.accessToken
 
-  if (!session?.accessToken) {
+  if (!accessToken) {
     return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 401 })
   }
 
@@ -25,54 +25,37 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Ungültiger Request-Body' }, { status: 400 })
   }
 
-  const { method, url, email, isOneClick, senderName } = body
+  const { method, url, email, isOneClick } = body
 
   try {
-    if (method === 'http' && url) {
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 12000)
-
-      const fetchMethod = isOneClick ? 'POST' : 'GET'
-      const fetchOptions: RequestInit = {
-        method: fetchMethod,
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; InboxDetox/1.0)',
-          ...(isOneClick
-            ? {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'List-Unsubscribe': 'One-Click',
-              }
-            : {}),
-        },
-        signal: controller.signal,
-        redirect: 'follow',
-        ...(isOneClick
-          ? { body: 'List-Unsubscribe=One-Click' }
-          : {}),
+    if (method === 'http' && typeof url === 'string') {
+      if (!parseUnsubscribeUrl(url)) {
+        return NextResponse.json({ error: 'Ungültige Abmelde-Adresse' }, { status: 400 })
       }
 
+      let success = false
       try {
-        await fetch(url, fetchOptions)
-        clearTimeout(timeoutId)
-        return NextResponse.json({ success: true, method: 'http' })
+        success = await requestUnsubscribeUrl(url, isOneClick === true)
       } catch (err) {
-        clearTimeout(timeoutId)
-        // If one-click POST failed, try GET as fallback
-        if (isOneClick) {
-          await fetch(url, { method: 'GET', redirect: 'follow' })
-          return NextResponse.json({ success: true, method: 'http-fallback' })
-        }
-        throw err
+        if (!isOneClick) throw err
       }
+      // Some senders advertise one-click but only handle the plain link.
+      if (!success && isOneClick) {
+        success = await requestUnsubscribeUrl(url, false)
+      }
+
+      if (success) {
+        return NextResponse.json({ success: true, method: 'http' })
+      }
+      return NextResponse.json({ error: 'Abmeldung fehlgeschlagen' }, { status: 502 })
     }
 
-    if (method === 'mailto' && email) {
-      const subject = 'Unsubscribe'
-      const success = await sendUnsubscribeEmail(
-        session.accessToken,
-        email,
-        subject
-      )
+    if (method === 'mailto' && typeof email === 'string') {
+      const target = parseMailtoTarget(email)
+      if (!target) {
+        return NextResponse.json({ error: 'Ungültige Abmelde-Adresse' }, { status: 400 })
+      }
+      const success = await sendUnsubscribeEmail(accessToken, target.to, target.subject)
       if (success) {
         return NextResponse.json({ success: true, method: 'mailto' })
       }
@@ -87,13 +70,7 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     )
   } catch (error) {
-    console.error('Unsubscribe error:', error)
-    return NextResponse.json(
-      {
-        error: 'Abmeldung fehlgeschlagen',
-        details: error instanceof Error ? error.message : String(error),
-      },
-      { status: 500 }
-    )
+    console.error('Unsubscribe error:', error instanceof Error ? error.name : 'unknown')
+    return NextResponse.json({ error: 'Abmeldung fehlgeschlagen' }, { status: 500 })
   }
 }

@@ -261,6 +261,7 @@ export async function analyzeEmails(
       unsubscribeMethod: unsub.method,
       unsubscribeUrl: unsub.httpUrl,
       unsubscribeEmail: unsub.mailtoAddress,
+      isOneClick: unsub.isOneClick,
       sampleEmails,
       status: 'subscribed',
       riskLevel: getRiskLevel(score, unsub.method),

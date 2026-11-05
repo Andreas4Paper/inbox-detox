@@ -29,10 +29,8 @@ export const authOptions: NextAuthOptions = {
       }
       return token
     },
-    async session({ session, token }) {
-      session.accessToken = token.accessToken as string | undefined
-      return session
-    },
+    // The Gmail tokens stay in the encrypted cookie and are only read on the server
+    // (via getToken), so they are deliberately not added to the client-visible session.
   },
   pages: {
     signIn: '/',
