@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 const ALLOWED_ORIGIN = process.env.NEXTAUTH_URL ?? 'http://localhost:3000'
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Protect dashboard: redirect unauthenticated users to landing page

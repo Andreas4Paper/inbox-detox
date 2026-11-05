@@ -47,9 +47,7 @@ const pagesConfig = {
 }
 
 const nextConfig = {
-  experimental: {
-    serverComponentsExternalPackages: ['googleapis', 'google-auth-library'],
-  },
+  serverExternalPackages: ['googleapis', 'google-auth-library'],
   images: {
     remotePatterns: [
       {

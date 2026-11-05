@@ -21,12 +21,12 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
       - run: npm ci
       # GitHub Pages is static: drop everything that needs a server (CI checkout only).
       - name: Remove server-only routes
-        run: rm -rf src/app/api src/app/dashboard src/middleware.ts
+        run: rm -rf src/app/api src/app/dashboard src/proxy.ts
       - name: Build static site
         run: npm run build
         env:
