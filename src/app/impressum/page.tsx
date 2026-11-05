@@ -20,17 +20,33 @@ export default function ImpressumPage() {
         </Link>
 
         <h1 className="text-3xl font-bold text-slate-900 mb-2 tracking-tight">Impressum</h1>
-        <p className="text-slate-500 mb-10 text-sm">Angaben gemäß § 5 TMG</p>
+        <p className="text-slate-500 mb-10 text-sm">Angaben gemäß § 5 DDG</p>
 
         <div className="space-y-8 text-slate-700">
           <section>
             <h2 className="text-base font-semibold text-slate-900 mb-2">Anbieter</h2>
             <p className="text-sm leading-relaxed">
-              {/* TODO: Vollständigen Namen und Adresse eintragen */}
-              [Vor- und Nachname]<br />
-              [Straße und Hausnummer]<br />
-              [PLZ Ort]<br />
+              PaperSync UG (haftungsbeschränkt)<br />
+              Am alten Bauhof 32<br />
+              33719 Bielefeld<br />
               Deutschland
+            </p>
+            <p className="text-sm leading-relaxed mt-2">
+              Vertreten durch die Geschäftsführer: Andreas Hanrath, Tobias Buchta
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-base font-semibold text-slate-900 mb-2">Registereintrag</h2>
+            <p className="text-sm leading-relaxed">
+              Amtsgericht Bielefeld, HRB 45686
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-base font-semibold text-slate-900 mb-2">Umsatzsteuer-ID</h2>
+            <p className="text-sm leading-relaxed">
+              Umsatzsteuer-Identifikationsnummer gemäß § 27a UStG: DE367264364
             </p>
           </section>
 
@@ -49,33 +65,22 @@ export default function ImpressumPage() {
 
           <section>
             <h2 className="text-base font-semibold text-slate-900 mb-2">
-              Verantwortlich für den Inhalt (§ 55 Abs. 2 RStV)
+              Verantwortlich für den Inhalt (§ 18 Abs. 2 MStV)
             </h2>
             <p className="text-sm leading-relaxed">
-              {/* TODO: Name und Adresse des Verantwortlichen */}
-              [Vor- und Nachname]<br />
-              [Anschrift wie oben]
+              Andreas Hanrath, Tobias Buchta<br />
+              Am alten Bauhof 32<br />
+              33719 Bielefeld
             </p>
           </section>
 
           <section>
             <h2 className="text-base font-semibold text-slate-900 mb-2">Datenschutz</h2>
             <p className="text-sm leading-relaxed">
-              Inbox Detox speichert keine E-Mail-Inhalte. Beim Login via Google OAuth werden
-              ausschließlich Metadaten (Absender, Betreff, Datum) temporär im Arbeitsspeicher
-              verarbeitet und nach dem Ende der Sitzung verworfen. Es werden keine Daten an
-              Dritte weitergegeben.
-            </p>
-            <p className="text-sm leading-relaxed mt-2">
-              Für die Verarbeitung personenbezogener Daten durch Google gelten die{' '}
-              <a
-                href="https://policies.google.com/privacy"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-violet-600 hover:underline"
-              >
-                Datenschutzbestimmungen von Google
-              </a>
+              Informationen zur Verarbeitung personenbezogener Daten findest du in der{' '}
+              <Link href="/datenschutz" className="text-violet-600 hover:underline">
+                Datenschutzerklärung
+              </Link>
               .
             </p>
           </section>

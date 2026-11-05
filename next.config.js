@@ -19,8 +19,8 @@ const securityHeaders = [
       "default-src 'self'",
       // Next.js needs unsafe-inline for styles; inline scripts for hydration
       "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-      "font-src 'self' https://fonts.gstatic.com",
+      "style-src 'self' 'unsafe-inline'",
+      "font-src 'self'",
       // Google OAuth redirect + Gmail API
       "connect-src 'self' https://www.googleapis.com https://accounts.google.com",
       // Google profile images
@@ -31,6 +31,20 @@ const securityHeaders = [
     ].join('; '),
   },
 ]
+
+// Static build for GitHub Pages (landing page + Impressum only).
+// See .github/workflows/pages.yml, which removes the server-only routes first.
+const PAGES_BASE_PATH = '/inbox-detox'
+
+const pagesConfig = {
+  output: 'export',
+  basePath: PAGES_BASE_PATH,
+  trailingSlash: true,
+  env: {
+    NEXT_PUBLIC_STATIC_SITE: '1',
+    NEXT_PUBLIC_BASE_PATH: PAGES_BASE_PATH,
+  },
+}
 
 const nextConfig = {
   experimental: {
@@ -52,6 +66,13 @@ const nextConfig = {
       },
     ]
   },
+}
+
+if (process.env.PAGES_BUILD === '1') {
+  // Static exports cannot set response headers or optimize images.
+  delete nextConfig.headers
+  nextConfig.images = { unoptimized: true }
+  Object.assign(nextConfig, pagesConfig)
 }
 
 module.exports = nextConfig

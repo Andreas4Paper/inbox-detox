@@ -1,9 +1,30 @@
 'use client'
 
 import { signIn, useSession } from 'next-auth/react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { InboxDetoxLogo } from '@/components/Logo'
+
+// On GitHub Pages there is no backend, so the call to action links to the hosted app.
+const IS_STATIC_SITE = process.env.NEXT_PUBLIC_STATIC_SITE === '1'
+const HOSTED_APP_URL = 'https://inbox-detox.vercel.app'
+const CTA_CLASS =
+  'group inline-flex items-center gap-3 px-7 py-4 bg-white text-slate-900 rounded-2xl font-semibold text-lg hover:bg-slate-50 active:scale-[0.98] transition-all duration-150 shadow-xl shadow-black/20'
+
+function CtaArrow() {
+  return (
+    <svg
+      className="w-4 h-4 text-slate-400 group-hover:translate-x-1 transition-transform"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+    </svg>
+  )
+}
 
 function GoogleIcon() {
   return (
@@ -90,7 +111,7 @@ function MockDashboard() {
   )
 }
 
-export default function LandingPage() {
+function AppLanding() {
   const { data: session, status } = useSession()
   const router = useRouter()
 
@@ -106,6 +127,36 @@ export default function LandingPage() {
     )
   }
 
+  return (
+    <LandingContent
+      cta={
+        <button onClick={() => signIn('google', { callbackUrl: '/dashboard' })} className={CTA_CLASS}>
+          <GoogleIcon />
+          Mit Google anmelden
+          <CtaArrow />
+        </button>
+      }
+    />
+  )
+}
+
+export default function LandingPage() {
+  if (IS_STATIC_SITE) {
+    return (
+      <LandingContent
+        cta={
+          <a href={HOSTED_APP_URL} className={CTA_CLASS}>
+            App öffnen
+            <CtaArrow />
+          </a>
+        }
+      />
+    )
+  }
+  return <AppLanding />
+}
+
+function LandingContent({ cta }: { cta: React.ReactNode }) {
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-950 via-violet-950 to-slate-950 flex flex-col">
       {/* Nav */}
@@ -125,7 +176,7 @@ export default function LandingPage() {
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-300 text-sm font-medium mb-6">
               <span className="w-2 h-2 rounded-full bg-violet-400 animate-pulse-slow" />
-              Sicher · Privatsphäre-freundlich · Open Source
+              Sicher · Privatsphäre-freundlich
             </div>
 
             <h1 className="text-5xl lg:text-6xl font-extrabold text-white leading-[1.1] tracking-tight mb-5">
@@ -141,26 +192,11 @@ export default function LandingPage() {
               Keine gespeicherten E-Mails. Keine Passwörter.
             </p>
 
-            <button
-              onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
-              className="group inline-flex items-center gap-3 px-7 py-4 bg-white text-slate-900 rounded-2xl font-semibold text-lg hover:bg-slate-50 active:scale-[0.98] transition-all duration-150 shadow-xl shadow-black/20"
-            >
-              <GoogleIcon />
-              Mit Google anmelden
-              <svg
-                className="w-4 h-4 text-slate-400 group-hover:translate-x-1 transition-transform"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
+            {cta}
 
             <div className="flex flex-wrap gap-5 mt-6">
               {[
-                { icon: '🔒', text: 'Nur Lesezugriff auf Gmail' },
+                { icon: '🔒', text: 'Liest nur Kopfzeilen und Kurzvorschau, sendet nur Abmelde-Mails nach deinem Klick' },
                 { icon: '🚫', text: 'Keine E-Mails gespeichert' },
                 { icon: '⚡', text: 'Analyse in Sekunden' },
               ].map((f) => (
@@ -183,9 +219,13 @@ export default function LandingPage() {
       <footer className="flex items-center justify-center gap-4 py-6 text-slate-600 text-sm">
         <span>Inbox Detox &mdash; Dein E-Mail-Detox Tool</span>
         <span className="text-slate-700">·</span>
-        <a href="/impressum" className="hover:text-slate-400 transition-colors">
+        <Link href="/impressum" className="hover:text-slate-400 transition-colors">
           Impressum
-        </a>
+        </Link>
+        <span className="text-slate-700">·</span>
+        <Link href="/datenschutz" className="hover:text-slate-400 transition-colors">
+          Datenschutz
+        </Link>
       </footer>
     </main>
   )
