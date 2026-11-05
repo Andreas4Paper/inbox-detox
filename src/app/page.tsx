@@ -6,9 +6,8 @@ import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { InboxDetoxLogo } from '@/components/Logo'
 
-// On GitHub Pages there is no backend, so the call to action links to the hosted app.
+// On GitHub Pages there is no backend and no public app URL yet, so sign-in is not offered.
 const IS_STATIC_SITE = process.env.NEXT_PUBLIC_STATIC_SITE === '1'
-const HOSTED_APP_URL = 'https://inbox-detox.vercel.app'
 const CTA_CLASS =
   'group inline-flex items-center gap-3 px-7 py-4 bg-white text-slate-900 rounded-2xl font-semibold text-lg hover:bg-slate-50 active:scale-[0.98] transition-all duration-150 shadow-xl shadow-black/20'
 
@@ -145,10 +144,9 @@ export default function LandingPage() {
     return (
       <LandingContent
         cta={
-          <a href={HOSTED_APP_URL} className={CTA_CLASS}>
-            App öffnen
-            <CtaArrow />
-          </a>
+          <p className="inline-flex items-center px-7 py-4 rounded-2xl font-semibold text-lg text-white bg-white/10 border border-white/20">
+            App bald verfügbar
+          </p>
         }
       />
     )
